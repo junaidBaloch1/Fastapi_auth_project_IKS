@@ -6,8 +6,8 @@ from sqlalchemy import pool
 from alembic import context
 
 from database import Base
-from models.user import User
-from models.token_black_list import TokenBlacklist
+from created_models.user import User
+from created_models.token_black_list import TokenBlacklist
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

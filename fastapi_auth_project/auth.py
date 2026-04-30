@@ -5,8 +5,9 @@ from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from database import get_db
-from models.user import User
-from models.token_black_list import TokenBlacklist
+from created_models.user import User
+from created_models.token_black_list import TokenBlacklist
+from created_models.user_role import UserRole
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 # Secret key — in production, load from environment variable, never hardcode
@@ -58,7 +59,6 @@ def get_current_user(
     If anything fails → 401 Unauthorized
     """
     # extract token from credetials object
-    print("\n\n\n credentials==", credentials, "===\n\n\n")
     token = credentials.credentials
 
     credentials_exception = HTTPException(
@@ -74,14 +74,12 @@ def get_current_user(
     if blacklisted:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token has been invalidated. Please log in again."
+            detail="Token has been invalidated. Please log in again. already blacklisted token"
         )
 
     try:
         # Decode the JWT — raises JWTError if invalid or expired
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-
-        print("\n\n\n payload===" ,payload, "===\n\n\n")
 
         username: str = payload.get("sub")  # "sub" is standard JWT claim for subject
         if username is None:
@@ -91,8 +89,6 @@ def get_current_user(
 
     # Get user from database
     user = db.query(User).filter(User.username == username).first()
-
-    print("\n\n\n user ===", user, "==\n\n\n")
 
     if user is None:
         raise credentials_exception
@@ -106,3 +102,35 @@ def get_current_user(
 
 
     return user
+
+def require_role(*roles: UserRole):
+    """
+    Role-checking dependency factory.
+
+    Usage:
+        Depends(require_role(UserRole.ADMIN))
+        Depends(require_role(UserRole.ADMIN, UserRole.USER))
+
+    How it works:
+        require_role() returns a function.
+        FastAPI calls that function as a dependency.
+        The function checks if the current user's role is in the allowed list.
+        If not → 403 Forbidden.
+
+    This pattern is called a 'dependency factory' — a function that
+    returns a dependency function. It lets us pass arguments (the roles)
+    to a dependency.
+    """
+    def role_checker(current_user: User = Depends(get_current_user)):
+        if current_user.role not in roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Access denied. Required role: {[r.value for r in roles]}"
+            )
+        return current_user
+    return role_checker
+
+
+# Convenience shortcuts — use these in routes
+require_admin = require_role(UserRole.ADMIN)
+require_user  = require_role(UserRole.USER, UserRole.ADMIN)  # admin can do user things too

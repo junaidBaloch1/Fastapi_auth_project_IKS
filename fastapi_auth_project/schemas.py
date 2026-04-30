@@ -1,7 +1,7 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
 from typing import Optional
-
+from created_models.user_role import UserRole
 
 class UserCreate(BaseModel):
     """
@@ -11,6 +11,10 @@ class UserCreate(BaseModel):
     username: str
     email: EmailStr       # validates email format automatically
     password: str
+    # role is optional — if not provided, defaults to "user"
+    # admins are created by other admins, not by self-registration
+    role: UserRole = UserRole.USER
+
 
 
 class UserResponse(BaseModel):
@@ -23,6 +27,7 @@ class UserResponse(BaseModel):
     email: str
     is_active: bool
     created_at: datetime
+    role: UserRole          # now included in response
 
     class Config:
         from_attributes = True  # allows reading from SQLAlchemy model directly
@@ -37,6 +42,8 @@ class TokenResponse(BaseModel):
     """Returned after successful login."""
     access_token: str
     token_type: str = "bearer"
+    role: UserRole          # return role on login so client knows what UI to show
+
 
 
 class MessageResponse(BaseModel):
