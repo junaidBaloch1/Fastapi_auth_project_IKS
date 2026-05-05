@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum
 from sqlalchemy.sql import func
 from database import Base
 from created_models.user_role import UserRole
+from sqlalchemy.orm import relationship
 
 
 class User(Base):
@@ -22,3 +23,8 @@ class User(Base):
 
     # New: role column — defaults to "user" for every new registration
     role = Column(Enum(UserRole), default=UserRole.USER, nullable=False, server_default="user")
+
+    # relationships — lets us do user.organizations, user.received_invitations
+    organizations = relationship("OrgMember",    back_populates="user")
+    received_invitations = relationship("Invitation",   back_populates="invited_user", foreign_keys="Invitation.invited_user_id")
+

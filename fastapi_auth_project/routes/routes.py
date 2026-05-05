@@ -111,7 +111,6 @@ def logout(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    print("\n\n\n\n========creds====", credentials, "\n\n\n\n")
     """
     Logout the current user.
     JWTs can't be 'deleted' since they're stateless.
@@ -192,6 +191,7 @@ def list_all_users(
 
 @admin_router.delete("/users/{user_id}", response_model=MessageResponse)
 def delete_user(
+    
     user_id: int,
     current_user: User = Depends(require_admin),
     db: Session = Depends(get_db)
