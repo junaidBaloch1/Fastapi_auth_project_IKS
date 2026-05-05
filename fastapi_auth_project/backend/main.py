@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from database import engine, Base
 from routes.routes import router, admin_router, user_router
 from routes.org_routes import org_router, invite_router
+from fastapi.middleware.cors import CORSMiddleware
+
 
 # Create all tables in the database on startup
 Base.metadata.create_all(bind=engine)
@@ -19,8 +21,16 @@ app.include_router(org_router)    # /org/*
 app.include_router(invite_router) # /invitations/*
 
 
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # Vite dev server
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 def root():
     return {"message": "Auth API is running"}
+
+
