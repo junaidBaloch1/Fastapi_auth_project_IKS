@@ -45,9 +45,16 @@ def create_organization(
         created_by=current_user.id   # link to the admin
     )
     db.add(org)
+    db.flush()  # generates org.id without full commit
+
+    # Now use org.id for admin member
+    admin_member = OrgMember(org_id=org.id, user_id=current_user.id)
+    db.add(admin_member)
+
     db.commit()
     db.refresh(org)
     return org
+
 
 
 @org_router.get("/my", response_model=list[OrgResponse])
@@ -79,7 +86,27 @@ def get_org_members(
     if not org:
         raise HTTPException(404, "Organization not found or not yours")
 
-    return db.query(OrgMember).filter(OrgMember.org_id == org_id).all()
+    # Check if admin is already a member
+    admin_already_member = db.query(OrgMember).filter(
+        OrgMember.org_id == org_id,
+        OrgMember.user_id == current_user.id
+    ).first()
+
+    # If not — add them to OrgMember table
+    if not admin_already_member:
+        admin_member = OrgMember(
+            org_id=org_id,
+            user_id=current_user.id
+        )
+        db.add(admin_member)
+        db.commit()
+
+    # Now query all members — admin is guaranteed to be there
+    members = db.query(OrgMember).filter(
+        OrgMember.org_id == org_id
+    ).all()
+
+    return members
 
 
 @org_router.delete("/{org_id}/members/{user_id}", response_model=MessageResponse)
