@@ -6,6 +6,8 @@ import Register      from "./pages/Register"
 import Dashboard     from "./pages/Dashboard"
 import Organizations from "./pages/Organizations"
 import Invitations   from "./pages/Invitations"
+import SuperAdmin from "./pages/SuperAdmin"
+
 
 export default function App() {
   return (
@@ -27,6 +29,13 @@ export default function App() {
           <Route path="/invitations" element={
             <ProtectedRoute><Invitations /></ProtectedRoute>
           }/>
+
+          <Route path="/super" element={
+          <ProtectedRoute requiredRole="super_admin">
+            <SuperAdmin />
+          </ProtectedRoute>
+        }/>
+
         </Routes>
       </BrowserRouter>
     </AuthProvider>

@@ -14,6 +14,12 @@ export default function Navbar() {
     <nav className="border-b border-gray-200 px-6 py-3 flex items-center justify-between bg-white">
       <div className="flex items-center gap-6">
         <span className="font-medium text-gray-900">NoteApp</span>
+          {role === "super_admin" && (
+            <Link to="/super" className="text-sm text-gray-600 hover:text-gray-900">
+              Super Admin
+            </Link>
+        )}
+
         {role === "admin" && (
           <>
             <Link to="/dashboard"     className="text-sm text-gray-600 hover:text-gray-900">Dashboard</Link>
