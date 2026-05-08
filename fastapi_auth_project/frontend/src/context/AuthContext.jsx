@@ -9,14 +9,19 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(localStorage.getItem("token"))
 
   const login = async (username, password) => {
-    const res = await api.post("/auth/login", { username, password })
-    localStorage.setItem("token", res.data.access_token)
-    localStorage.setItem("role",  res.data.role)
+    try {
+        const res = await api.post("/auth/login", { username, password })
 
-    setToken(res.data.access_token)
-    setRole(res.data.role)
-    return res.data.role   // return role so caller can redirect correctly
-  }
+        localStorage.setItem("token", res.data.access_token)
+        localStorage.setItem("role",  res.data.role)
+
+        setToken(res.data.access_token)
+        setRole(res.data.role)
+        return res.data.role
+    } catch (err) {
+        throw err  // re-throw so Login.jsx catch block receives it
+    }
+}
 
   const logout = async () => {
     try { await api.post("/auth/logout") } catch {}

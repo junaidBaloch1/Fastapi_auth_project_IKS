@@ -9,19 +9,23 @@ api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token")
   if (token) config.headers.Authorization = `Bearer ${token}`
   return config
-})
+}) 
 
 // If 401 received anywhere → clear token and redirect to login
 api.interceptors.response.use(
-  (res) => res,
-  (err) => {
-    if (err.response?.status === 401) {
-      localStorage.removeItem("token")
-      localStorage.removeItem("role")
-      window.location.href = "/login"
+    (res) => res,
+    (err) => {
+
+        if (err.response?.status === 401) {
+            // only redirect if NOT on login page
+            if (!window.location.pathname.includes("/login")) {
+                localStorage.removeItem("token")
+                localStorage.removeItem("role")
+                window.location.href = "/login"
+            }
+        }
+        return Promise.reject(err)
     }
-    return Promise.reject(err)
-  }
 )
 
 export default api

@@ -24,7 +24,8 @@ export default function Invitations() {
   }
 
   const respond = async (id, action) => {
-    setError(""); setSuccess("")
+    setError(""); 
+    setSuccess("")
     try {
       const res = await api.post(`/invitations/${id}/${action}`)
       setSuccess(res.data.message)
@@ -35,7 +36,8 @@ export default function Invitations() {
   }
 
   const cancel = async (id) => {
-    setError(""); setSuccess("")
+    setError(""); 
+    setSuccess("")
     try {
       await api.delete(`/invitations/${id}`)
       setSuccess("Invitation cancelled")

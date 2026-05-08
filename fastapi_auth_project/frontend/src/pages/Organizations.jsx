@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import api from "../api/axios"
 import Navbar from "../components/Navbar"
 
+
 export default function Organizations() {
   const [orgs, setOrgs]         = useState([])
   const [members, setMembers]   = useState({})
@@ -24,12 +25,14 @@ export default function Organizations() {
 
   const createOrg = async (e) => {
     e.preventDefault()
-    setError(""); setSuccess("")
+    setError(""); 
+    setSuccess("")
     try {
       await api.post("/org/", { name: newOrgName })
       setSuccess("Organization created")
       setNewOrgName("")
       fetchOrgs()
+
     } catch (err) {
       setError(err.response?.data?.detail || "Failed to create org")
     }
@@ -37,14 +40,16 @@ export default function Organizations() {
 
   const sendInvite = async (e) => {
     e.preventDefault()
-    setError(""); setSuccess("")
+    setError(""); 
+    setSuccess("")
     try {
       await api.post("/invitations/", {
         org_id: parseInt(inviteData.org_id),
-        invited_user_id: parseInt(inviteData.invited_user_id),
+        // invited_user_id: parseInt(inviteData.invited_user_id),
+        invited_user_email: inviteData.invited_user_email,
       })
       setSuccess("Invitation sent successfully")
-      setInviteData({ org_id: "", invited_user_id: "" })
+      setInviteData({ org_id: "", invited_user_email: "" })
     } catch (err) {
       setError(err.response?.data?.detail || "Failed to send invitation")
     }
@@ -102,11 +107,11 @@ export default function Organizations() {
             </select>
             <input
               required
-              type="number"
-              placeholder="User ID"
-              value={inviteData.invited_user_id}
-              onChange={e => setInviteData({ ...inviteData, invited_user_id: e.target.value })}
-              className="w-28 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
+              type="email"
+              placeholder="User email"
+              value={inviteData.invited_user_email}
+              onChange={e => setInviteData({ ...inviteData, invited_user_email: e.target.value })}
+              className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
             />
             <button
               type="submit"
@@ -149,12 +154,16 @@ export default function Organizations() {
                             <span className="text-sm text-gray-700">{m.user.username}</span>
                             <span className="text-xs text-gray-400 ml-2">{m.user.email}</span>
                           </div>
-                          <button
-                            onClick={() => removeMember(org.id, m.user_id)}
-                            className="text-xs text-red-500 hover:text-red-700"
-                          >
-                            Remove
-                          </button>
+                          { m.user.role === "admin" ? (
+                            <span className="text-green-600 text-lg px-3 py-1">Admin</span>
+                          ):(
+                            <button
+                              onClick={() => removeMember(org.id, m.user_id)}
+                              className="text-red-600 hover:underline text-sm px-3 py-1"
+                            >
+                               Remove
+                            </button>
+                          )}
                         </div>
                       ))
                     }

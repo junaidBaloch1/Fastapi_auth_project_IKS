@@ -26,7 +26,7 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="bg-white border border-gray-200 rounded-xl p-8 w-full max-w-sm">
-        <h1 className="text-xl font-medium text-gray-900 mb-6">Sign in</h1>
+        <h1 className="text-3xl font-bold text-blue-600 mb-4 tracking-tight">Sign in</h1>
 
         {error && (
           <div className="mb-4 text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
