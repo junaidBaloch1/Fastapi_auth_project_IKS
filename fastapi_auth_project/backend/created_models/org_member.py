@@ -1,4 +1,4 @@
-from sqlalchemy import (Column, Integer, DateTime, ForeignKey)
+from sqlalchemy import (Column, String, Integer, Boolean, DateTime, ForeignKey)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from database import Base
@@ -17,6 +17,9 @@ class OrgMember(Base):
     org_id = Column(Integer, ForeignKey("organizations.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"),         nullable=False)
     joined_at = Column(DateTime(timezone=True), server_default=func.now())
+    is_active = Column(Boolean, default=True, nullable=False)  # ← add this
+
+    # user_email = Column(String(255), unique=True, index=True, nullable=False)
 
     organization = relationship("Organization", back_populates="members")
     user = relationship("User", back_populates="organizations")

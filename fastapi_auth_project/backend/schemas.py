@@ -81,7 +81,8 @@ class OrgMemberResponse(BaseModel):
 
 class InvitationCreate(BaseModel):
     """Admin sends user_id and org_id to invite someone."""
-    invited_user_id: int
+    # invited_user_id: int
+    invited_user_email: str
     org_id: int
 
 class InvitationResponse(BaseModel):

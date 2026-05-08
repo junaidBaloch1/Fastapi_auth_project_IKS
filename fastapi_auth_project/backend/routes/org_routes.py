@@ -103,8 +103,9 @@ def get_org_members(
 
     # Now query all members — admin is guaranteed to be there
     members = db.query(OrgMember).filter(
-        OrgMember.org_id == org_id
-    ).all()
+    OrgMember.org_id == org_id,
+    OrgMember.is_active == True).all()
+
 
     return members
 
@@ -130,6 +131,10 @@ def remove_member(
     ).first()
     if not member:
         raise HTTPException(404, "Member not found in this organization")
+
+    # prevent admin removing themselves
+    if member.user_id == current_user.id:
+        raise HTTPException(400, "Admin cannot remove themselves")
 
     # db.delete(member)
     member.is_active = False
@@ -162,18 +167,35 @@ def send_invitation(
     ).first()
     if not org:
         raise HTTPException(404, "Organization not found or not yours")
-
-    # Verify target user exists
+    
+    # ← key change: find user by email instead of id
     invited_user = db.query(User).filter(
-        User.id == data.invited_user_id
+        User.email == data.invited_user_email
     ).first()
     if not invited_user:
-        raise HTTPException(404, "User not found")
+        raise HTTPException(404, f"No user found with email {data.invited_user_email}")
+
+   
+    # Prevent admin from inviting themselves
+    if invited_user.id == current_user.id:
+        raise HTTPException(
+        status_code=400,
+        detail="Admin cannot invite themselves"
+    )
+
+
+    # # Verify target user exists
+    # invited_user = db.query(User).filter(
+    #     User.id == data.invited_user_id
+    # ).first()
+    # if not invited_user:
+    #     raise HTTPException(404, "User not found")
 
     # Check user isn't already a member
     already_member = db.query(OrgMember).filter(
         OrgMember.org_id == data.org_id,
-        OrgMember.user_id == data.invited_user_id
+        OrgMember.user_id == invited_user.id,
+        OrgMember.is_active == True
     ).first()
     if already_member:
         raise HTTPException(400, "User is already a member of this organization")
@@ -181,7 +203,7 @@ def send_invitation(
     # Check no pending invitation already exists
     pending = db.query(Invitation).filter(
         Invitation.org_id == data.org_id,
-        Invitation.invited_user_id == data.invited_user_id,
+        Invitation.invited_user_id == invited_user.id,
         Invitation.status == InvitationStatus.PENDING
     ).first()
     if pending:
@@ -189,7 +211,7 @@ def send_invitation(
 
     invitation = Invitation(
         org_id=data.org_id,
-        invited_user_id=data.invited_user_id,
+        invited_user_id=invited_user.id,
         invited_by_id=current_user.id,
         status=InvitationStatus.PENDING
     )
