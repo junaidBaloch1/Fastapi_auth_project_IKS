@@ -9,19 +9,25 @@ export default function Login() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
+
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError("")
-    setLoading(true)
-    try {
-      const role = await login(form.username, form.password)
-      navigate("/dashboard")
-    } catch (err) {
-      setError(err.response?.data?.detail || "Login failed")
-    } finally {
-      setLoading(false)
-    }
+  e.preventDefault()
+  setError("")
+  setLoading(true)
+  try {
+    const role = await login(form.username, form.password)
+
+    // new — redirect based on role
+    if (role === "super_admin") navigate("/super")
+    else if (role === "admin")  navigate("/dashboard")
+    else                        navigate("/dashboard")
+
+  } catch (err) {
+    setError(err.response?.data?.detail || "Login failed")
+  } finally {
+    setLoading(false)
   }
+}
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">

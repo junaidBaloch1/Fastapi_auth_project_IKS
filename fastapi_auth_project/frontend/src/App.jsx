@@ -19,8 +19,10 @@ export default function App() {
           <Route path="/register" element={<Register />} />
 
           <Route path="/dashboard" element={
-            <ProtectedRoute><Dashboard /></ProtectedRoute>
-          }/>
+              <ProtectedRoute excludeRole="super_admin">
+                <Dashboard />
+              </ProtectedRoute>
+            }/>
 
           <Route path="/organizations" element={
             <ProtectedRoute requiredRole="admin"><Organizations /></ProtectedRoute>
