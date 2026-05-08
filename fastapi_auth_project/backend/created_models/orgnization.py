@@ -1,4 +1,4 @@
-from sqlalchemy import (Column, Integer, String, DateTime, ForeignKey)
+from sqlalchemy import (Column, Boolean, Integer, String, DateTime, ForeignKey)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from database import Base
@@ -14,6 +14,9 @@ class Organization(Base):
     name       = Column(String(255), unique=True, nullable=False, index=True)
     created_by = Column(Integer, ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    is_active = Column(Boolean, default=True)
+
 
     # relationships
     creator   = relationship("User",       foreign_keys=[created_by])

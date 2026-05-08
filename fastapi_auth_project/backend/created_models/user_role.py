@@ -9,3 +9,8 @@ class UserRole(str, enum.Enum):
     """
     USER = "user"
     ADMIN = "admin"
+    SUPER_ADMIN = "super_admin"
+
+class AssignableRole(str, enum.Enum):
+    ADMIN = "admin"
+    USER = "user"

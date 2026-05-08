@@ -14,8 +14,8 @@ from schemas import (
 )
 from auth import require_admin, require_user, get_current_user
 
-org_router = APIRouter(prefix="/org", tags=["Organization"])
-invite_router = APIRouter(prefix="/invitations", tags=["Invitations"])
+org_router = APIRouter(prefix="/org", tags=["Organization & admin"])
+invite_router = APIRouter(prefix="/invitations", tags=["Invitations & admin"])
 
 
 # ═══════════════════════════════════════════════

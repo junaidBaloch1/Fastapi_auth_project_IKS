@@ -99,8 +99,7 @@ def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Session expired. Please log in again."
         )
-
-
+    
     return user
 
 def require_role(*roles: UserRole):
@@ -132,5 +131,7 @@ def require_role(*roles: UserRole):
 
 
 # Convenience shortcuts — use these in routes
+require_super_admin = require_role(UserRole.SUPER_ADMIN)
 require_admin = require_role(UserRole.ADMIN)
-require_user  = require_role(UserRole.USER, UserRole.ADMIN)  # admin can do user things too
+require_user  = require_role(UserRole.USER, UserRole.ADMIN, UserRole.SUPER_ADMIN)  # admin  and super admin can do user things too
+require_admin_or_super = require_role(UserRole.ADMIN, UserRole.SUPER_ADMIN)
